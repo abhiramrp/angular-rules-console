@@ -1,3 +1,11 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { RulesComponentComponent } from './rules-component/rules-component.component';
+
+export const routes: Routes = [
+    {
+        path: 'json-rules-engine',
+        title: 'JSON Rules Engine',
+        component: RulesComponentComponent,
+    }
+];
