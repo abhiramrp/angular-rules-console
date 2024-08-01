@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RulesComponentComponent } from './rules-component.component';
+import { RulesEngineComponent } from './rules-engine.component';
 
-describe('RulesComponentComponent', () => {
-  let component: RulesComponentComponent;
-  let fixture: ComponentFixture<RulesComponentComponent>;
+describe('RulesEngineComponent', () => {
+  let component: RulesEngineComponent;
+  let fixture: ComponentFixture<RulesEngineComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RulesComponentComponent]
+      imports: [RulesEngineComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RulesComponentComponent);
+    fixture = TestBed.createComponent(RulesEngineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
