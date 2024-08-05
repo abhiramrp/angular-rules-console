@@ -71,17 +71,18 @@ export class RulesEngineComponent {
   performAction(item: string, inputs: any[]): string {
     switch (item) {
       case 'Date Calculator':
-        return `Executed action for ${item} with input: ${inputs[0]}`;
+        console.log(inputs);
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Text Similarity':
-        return `Executed action for ${item} with inputs: ${inputs[0]}, ${inputs[1]}`;
+        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
       case 'Geolocation Identification':
-        return `Executed action for ${item} with inputs: ${inputs[0]}, ${inputs[1]}`;
+        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
       case 'Almost Palindrome':
-        return `Executed action for ${item} with input: ${inputs[0]}`;
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Language Detection':
-        return `Executed action for ${item} with input: ${inputs[0]}`;
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Traffic Predictor':
-        return `Executed action for ${item} with input: ${inputs[0]}`;
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
       default:
         return 'No action defined';
     }
