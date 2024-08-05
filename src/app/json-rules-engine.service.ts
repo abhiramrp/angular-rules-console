@@ -9,8 +9,6 @@ export class JsonRulesEngineService {
 
   constructor() { 
     this.engine = new Engine();
-
-
     // this.engine.addRule(rule);
   }
 
