@@ -45,6 +45,7 @@ export class RulesEngineComponent implements OnInit {
     this.inputs = this.getInputsForItem(this.selectedItem);
   }
 
+
   getInputsForItem(item: string): any[] {
     // Define different input structures for each item here
     switch (item) {
@@ -75,6 +76,25 @@ export class RulesEngineComponent implements OnInit {
   async executeFunction() {
     if (this.selectedItem) {
       this.output = await this.performAction(this.selectedItem, this.inputs);
+    }
+  }
+
+  async performAction(item: string, inputs: any[]): Promise<any> {
+    switch (item) {
+      case 'Date Calculator':
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
+      case 'Text Similarity':
+        return await this.operatorTextSimilarity(inputs[0].value, inputs[1].value);
+      case 'Geolocation Identification':
+        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
+      case 'Almost Palindrome':
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
+      case 'Language Detection':
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
+      case 'Traffic Predictor':
+        return `Executed action for ${item} with input: ${inputs[0].value}`;
+      default:
+        return 'No action defined';
     }
   }
 
@@ -109,23 +129,5 @@ export class RulesEngineComponent implements OnInit {
     });
   }
 
-  async performAction(item: string, inputs: any[]): Promise<any> {
-    switch (item) {
-      case 'Date Calculator':
-        console.log(inputs);
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
-      case 'Text Similarity':
-        return await this.operatorTextSimilarity(inputs[0].value, inputs[1].value);
-      case 'Geolocation Identification':
-        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
-      case 'Almost Palindrome':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
-      case 'Language Detection':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
-      case 'Traffic Predictor':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
-      default:
-        return 'No action defined';
-    }
-  }
+  
 }
