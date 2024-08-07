@@ -1,7 +1,9 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { JsonRulesEngineService } from '../json-rules-engine.service';
+import { Component, OnInit } from '@angular/core';
+import { Engine } from 'json-rules-engine';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+import { JSONRulesService } from '../jsonrules.service';
 
 @Component({
   selector: 'app-rules-engine',
@@ -10,7 +12,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './rules-engine.component.html',
   styleUrl: './rules-engine.component.scss',
 })
-export class RulesEngineComponent {
+
+export class RulesEngineComponent implements OnInit {
   // result: string;
   items: string[] = [
     'Date Calculator',
@@ -24,10 +27,17 @@ export class RulesEngineComponent {
   selectedItem: string | null = null;
   inputs: any[] = [];
   output: string = '';
+  engine: Engine;
 
-  constructor() {}
+  constructor(private jsonRulesService: JSONRulesService) {
+    this.engine = new Engine();
+  }
 
-  ngOnInit(): void {}
+  ngOnInit() {
+    this.jsonRulesService.getRules().subscribe(rules => {
+      rules.forEach((rule: any) => this.engine.addRule(rule));
+    });
+  }
 
   onSelect(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -42,8 +52,8 @@ export class RulesEngineComponent {
         return [{ type: 'text', placeholder: 'Input 1' }];
       case 'Text Similarity':
         return [
-          { type: 'number', placeholder: 'Input 2' },
-          { type: 'text', placeholder: 'Input 2 Text' },
+          { type: 'text', placeholder: 'Text 1' },
+          { type: 'text', placeholder: 'Text 2' },
         ];
       case 'Geolocation Identification':
         return [
@@ -62,19 +72,50 @@ export class RulesEngineComponent {
     }
   }
 
-  executeFunction() {
+  async executeFunction() {
     if (this.selectedItem) {
-      this.output = this.performAction(this.selectedItem, this.inputs);
+      this.output = await this.performAction(this.selectedItem, this.inputs);
     }
   }
 
-  performAction(item: string, inputs: any[]): string {
+  operatorTextSimilarity(text1: string, text2: string): Promise<string | undefined> {
+    const lowerText1 = text1.toLowerCase();
+    const lowerText2 = text2.toLowerCase();
+
+    const words1 = lowerText1.split(' ');
+    const words2 = lowerText2.split(' ');
+
+    const intersection = words1.filter(word => words2.includes(word)).length;
+    const union = new Set([...words1, ...words2]).size;
+
+    const similarity = (intersection / union) * 100;
+
+    const facts = { similarity };
+
+    return new Promise((resolve, reject) => {
+      this.engine
+        .run(facts)
+        .then(results => {
+          let message: string | undefined = undefined;
+          results.events.map(event => {
+            message = event.params?.['message'];
+          });
+          resolve(message); // Resolve the promise with the message
+        })
+        .catch(error => {
+          console.log(error);
+          reject(error); // Reject the promise in case of an error
+        });
+    });
+  }
+
+  async performAction(item: string, inputs: any[]): Promise<any> {
     switch (item) {
       case 'Date Calculator':
         console.log(inputs);
         return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Text Similarity':
-        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
+        return await this.operatorTextSimilarity(inputs[0].value, inputs[1].value);
       case 'Geolocation Identification':
         return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
       case 'Almost Palindrome':
