@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { JSONRulesService } from '../jsonrules.service';
-import { resolve } from 'node:path';
-import { error } from 'node:console';
 
 @Component({
   selector: 'app-rules-engine',
@@ -28,11 +26,11 @@ export class RulesEngineComponent implements OnInit {
   selectedItem: string | null = null;
   inputs: any[] = [];
   output: string = '';
-  engine: Engine;
 
   constructor(private jsonRulesService: JSONRulesService) {
-    this.engine = new Engine();
   }
+
+  /*
 
   ngOnInit() {
     this.jsonRulesService.getRules().subscribe((rules) => {
@@ -48,34 +46,39 @@ export class RulesEngineComponent implements OnInit {
       }
     );
   }
+  */ 
+
+  ngOnInit() {
+  }
 
   onSelect(event: Event): void {
     const target = event.target as HTMLSelectElement;
     this.selectedItem = target.value;
     this.inputs = this.getInputsForItem(this.selectedItem);
+    this.output = "";
   }
 
   getInputsForItem(item: string): any[] {
     // Define different input structures for each item here
     switch (item) {
       case 'Date Calculator':
-        return [{ type: 'text', placeholder: 'Input 1' }];
+        return [{ label: "L: ", type: 'text', placeholder: 'Input 1' }];
       case 'Text Similarity':
         return [
-          { type: 'text', placeholder: 'Text 1' },
-          { type: 'text', placeholder: 'Text 2' },
+          { label: "L: ", type: 'text', placeholder: 'Text 1' },
+          { label: "L: ", type: 'text', placeholder: 'Text 2' },
         ];
       case 'Geolocation Identification':
         return [
-          { type: 'number', placeholder: 'Input 3' },
-          { type: 'text', placeholder: 'Input 3 Text' },
+          { label: "L: ", type: 'number', placeholder: 'Input 3' },
+          { label: "L: ", type: 'text', placeholder: 'Input 3 Text' },
         ];
       case 'Almost Palindrome':
-        return [{ type: 'text', placeholder: 'Text' }];
+        return [{ label: "Enter Palindrome: ", type: 'text', placeholder: 'Text' }];
       case 'Language Detection':
-        return [{ type: 'text', placeholder: 'Input 5' }];
+        return [{ label: "L: ", type: 'text', placeholder: 'Input 5' }];
       case 'Traffic Predictor':
-        return [{ type: 'text', placeholder: 'Input 6' }];
+        return [{ label: "L: ", type: 'text', placeholder: 'Input 6' }];
 
       default:
         return [];
@@ -93,14 +96,14 @@ export class RulesEngineComponent implements OnInit {
       case 'Date Calculator':
         return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Text Similarity':
-        return await this.operatorTextSimilarity(
+        return await this.jsonRulesService.operatorTextSimilarity(
           inputs[0].value,
           inputs[1].value
         );
       case 'Geolocation Identification':
         return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
       case 'Almost Palindrome':
-        return await this.operatorAlmostPalindrome(inputs[0].value);
+        return await this.jsonRulesService.operatorAlmostPalindrome(inputs[0].value);
       case 'Language Detection':
         return `Executed action for ${item} with input: ${inputs[0].value}`;
       case 'Traffic Predictor':
@@ -110,58 +113,4 @@ export class RulesEngineComponent implements OnInit {
     }
   }
 
-  operatorTextSimilarity(
-    text1: string,
-    text2: string
-  ): Promise<string | undefined> {
-    const lowerText1 = text1.toLowerCase();
-    const lowerText2 = text2.toLowerCase();
-
-    const words1 = lowerText1.split(' ');
-    const words2 = lowerText2.split(' ');
-
-    const intersection = words1.filter((word) => words2.includes(word)).length;
-    const union = new Set([...words1, ...words2]).size;
-
-    const similarity = (intersection / union) * 100;
-
-    const facts = { similarity };
-
-    return new Promise((resolve, reject) => {
-      this.engine
-        .run(facts)
-        .then((results) => {
-          let message: string | undefined = undefined;
-          results.events.map((event) => {
-            message = event.params?.['message'];
-          });
-          resolve(message); // Resolve the promise with the message
-        })
-        .catch((error) => {
-          console.log(error);
-          reject(error); // Reject the promise in case of an error
-        });
-    });
-  }
-
-  operatorAlmostPalindrome(inputString: string): Promise<string | undefined> {
-    const facts = { inputString };
-    console.log("f", facts);
-
-    return new Promise((resolve, reject) => {
-      this.engine
-        .run(facts)
-        .then((results) => {
-          let message: string | undefined = undefined;
-          message = results.events.length
-            ? results.events[0].params?.['message']
-            : 'Not an almost palindrome';
-          resolve(message);
-        })
-        .catch((error) => {
-          console.log(error);
-          reject(error); // Reject the promise in case of an error
-        });
-    });
-  }
 }

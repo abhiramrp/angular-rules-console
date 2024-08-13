@@ -29,7 +29,11 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ---
 
 # Adding an Operator to JSON Rules Engine
-1. Add your rules to the JSON file [rules.json](public/assets/rules.json). 
+1. Add your JSON rules file to [operators](public/assets/operators) directory. 
 2. Edit the inputs at `getInputsForItem()` function in [rules-engine.component.ts](src/app/rules-engine/rules-engine.component.ts). 
-3. Write a function for your opeator. Use `Text Similarity` Operator for reference. 
-4. Call your operator function in `performAction()` function cases. 
+3. In [jsonrules.service.ts](src/app/jsonrules.service.ts) file, add three functions:
+    - A private method that adds operator to engine
+    - A private method that holds the operator logic
+    - A public method that that takes an input and returns a string Promise output.
+4. Call the public operator method from `performAction` method in [rules-engine.component.ts](src/app/rules-engine/rules-engine.component.ts)
+

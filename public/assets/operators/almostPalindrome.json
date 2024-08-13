@@ -4,7 +4,7 @@
     "conditions": {
       "all": [
         {
-          "fact": "inputString",
+          "fact": "palindromeString",
           "operator": "almostPalindrome",
           "value": true
         }
