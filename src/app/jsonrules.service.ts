@@ -67,27 +67,69 @@ export class JSONRulesService {
 
     return false;
   }
-
+/*
 private calculateTextSimilarity(text1: string, text2: string): number {
-  const normalizedText1 = text1.trim().toLowerCase();
-  const normalizedText2 = text2.trim().toLowerCase();
+  const normalize = (text: string) =>
+    text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
 
-  const length1 = normalizedText1.length;
-  const length2 = normalizedText2.length;
-  const maxLength = Math.max(length1, length2);
+  const words1 = normalize(text1);
+  const words2 = normalize(text2);
 
+  const wordSet = new Set([...words1, ...words2]);
   let matchCount = 0;
 
-  for (let i = 0; i < Math.min(length1, length2); i++) {
-    if (normalizedText1[i] === normalizedText2[i]) {
-      matchCount++;
-    }
-  }
+  wordSet.forEach((word) => {
+    const count1 = words1.filter(w => w === word).length;
+    const count2 = words2.filter(w => w === word).length;
+    matchCount += Math.min(count1, count2);
+  });
 
-  // Calculate similarity based on character matches
-  const similarity = (matchCount / maxLength) * 100;
+  const maxWords = Math.max(words1.length, words2.length);
+  const similarity = (matchCount / maxWords) * 100;
   return similarity;
 }
+ */
+
+
+ private calculateTextSimilarity(text1: string, text2: string): number {
+   // Normalize the input
+   const normalize = (text: string) => text.toLowerCase().replace(/[^\w\s]/g, '').trim();
+
+   const normalizedText1 = normalize(text1);
+   const normalizedText2 = normalize(text2);
+
+   // Use character-level comparison for short texts
+   if (normalizedText1.length <= 10 || normalizedText2.length <= 10) {
+     const length1 = normalizedText1.length;
+     const length2 = normalizedText2.length;
+     const maxLength = Math.max(length1, length2);
+     let matchCount = 0;
+
+     for (let i = 0; i < Math.min(length1, length2); i++) {
+       if (normalizedText1[i] === normalizedText2[i]) {
+         matchCount++;
+       }
+     }
+
+     return (matchCount / maxLength) * 100;
+   }
+
+   // Use word-level comparison for longer texts
+   const words1 = normalizedText1.split(/\s+/);
+   const words2 = normalizedText2.split(/\s+/);
+
+   const wordSet = new Set([...words1, ...words2]);
+   let matchCount = 0;
+
+   wordSet.forEach((word) => {
+     const count1 = words1.filter(w => w === word).length;
+     const count2 = words2.filter(w => w === word).length;
+     matchCount += Math.min(count1, count2);
+   });
+
+   const maxWords = Math.max(words1.length, words2.length);
+   return (matchCount / maxWords) * 100;
+ }
 
 
   // OPERATORS
