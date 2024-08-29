@@ -1,0 +1,17 @@
+{
+  "conditions": {
+    "all": [
+      {
+        "fact": "texts",
+        "operator": "textSimilarity",
+        "value": 80
+      }
+    ]
+  },
+  "event": {
+    "type": "similarityCheck",
+    "params": {
+      "message": "The texts are similar"
+    }
+  }
+}

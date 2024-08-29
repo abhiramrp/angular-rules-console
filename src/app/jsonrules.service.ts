@@ -6,13 +6,13 @@ import { Engine } from 'json-rules-engine';
 @Injectable({
   providedIn: 'root',
 })
-
 export class JSONRulesService {
   private rulesUrl = 'assets/rules.json';
   private engine: Engine;
 
   constructor(private http: HttpClient) {
     this.engine = new Engine();
+    this.addTextSimilarityOperator();  // Initialize the text similarity operator
   }
 
   // ADDING JSON OPERATORS
@@ -34,9 +34,20 @@ export class JSONRulesService {
         );
       }
     );
-
   }
 
+  // ADDING TEXT SIMILARITY OPERATOR
+
+  private addTextSimilarityOperator() {
+    this.getRules("assets/operators/textsimilarity.json").subscribe((rules) => {
+      this.engine.addRule(rules);
+    });
+
+    this.engine.addOperator('textSimilarity', (factValue: any, jsonValue: number) => {
+      const similarity = this.calculateTextSimilarity(factValue.text1, factValue.text2);
+      return similarity >= jsonValue;
+    });
+  }
 
   // OPERATOR LOGIC
 
@@ -57,39 +68,53 @@ export class JSONRulesService {
     return false;
   }
 
+private calculateTextSimilarity(text1: string, text2: string): number {
+  const normalizedText1 = text1.trim().toLowerCase();
+  const normalizedText2 = text2.trim().toLowerCase();
+
+  const length1 = normalizedText1.length;
+  const length2 = normalizedText2.length;
+  const maxLength = Math.max(length1, length2);
+
+  let matchCount = 0;
+
+  for (let i = 0; i < Math.min(length1, length2); i++) {
+    if (normalizedText1[i] === normalizedText2[i]) {
+      matchCount++;
+    }
+  }
+
+  // Calculate similarity based on character matches
+  const similarity = (matchCount / maxLength) * 100;
+  return similarity;
+}
+
 
   // OPERATORS
 
-  operatorTextSimilarity(text1: string, text2: string): Promise<string | undefined> {
-    const lowerText1 = text1.toLowerCase();
-    const lowerText2 = text2.toLowerCase();
+operatorTextSimilarity(text1: string, text2: string): Promise<string | undefined> {
+  const similarity = this.calculateTextSimilarity(text1, text2); // Calculate similarity percentage
+  const facts = { texts: { text1, text2 }, similarity }; // Include similarity in the facts
 
-    const words1 = lowerText1.split(' ');
-    const words2 = lowerText2.split(' ');
+  return new Promise((resolve, reject) => {
+    this.engine
+      .run(facts)
+      .then((results) => {
+        let message: string | undefined = `The texts are not similar. Similarity: ${similarity.toFixed(2)}%`; // Default message with similarity
 
-    const intersection = words1.filter((word) => words2.includes(word)).length;
-    const union = new Set([...words1, ...words2]).size;
+        if (results.events.length > 0) {
+          message = `${results.events[0].params?.['message']} Similarity: ${similarity.toFixed(2)}%`;
+        }
 
-    const similarity = (intersection / union) * 100;
+        resolve(message); // Resolve the promise with the message
+      })
+      .catch((error) => {
+        console.log(error);
+        reject(error); // Reject the promise in case of an error
+      });
+  });
+}
 
-    const facts = { similarity };
-
-    return new Promise((resolve, reject) => {
-      this.engine
-        .run(facts)
-        .then((results) => {
-          let message: string | undefined = undefined;
-          results.events.map((event) => {
-            message = event.params?.['message'];
-          });
-          resolve(message); // Resolve the promise with the message
-        })
-        .catch((error) => {
-          console.log(error);
-          reject(error); // Reject the promise in case of an error
-        });
-    });
-  }
 
   operatorAlmostPalindrome(palindromeString: string): Promise<string | undefined> {
     this.addPalindromeOperator();
@@ -100,10 +125,12 @@ export class JSONRulesService {
       this.engine
         .run(facts)
         .then((results) => {
-          let message: string | undefined = undefined;
-          message = results.events.length
-            ? results.events[0].params?.['message']
-            : 'Not an almost palindrome';
+          let message: string | undefined = 'Not an almost palindrome';
+
+          if (results.events.length > 0) {
+            message = results.events[0].params?.['message'];
+          }
+
           resolve(message);
         })
         .catch((error) => {
@@ -112,11 +139,4 @@ export class JSONRulesService {
         });
     });
   }
-
-
-
-
-
-
-
 }
