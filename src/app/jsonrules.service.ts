@@ -67,28 +67,7 @@ export class JSONRulesService {
 
     return false;
   }
-/*
-private calculateTextSimilarity(text1: string, text2: string): number {
-  const normalize = (text: string) =>
-    text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
 
-  const words1 = normalize(text1);
-  const words2 = normalize(text2);
-
-  const wordSet = new Set([...words1, ...words2]);
-  let matchCount = 0;
-
-  wordSet.forEach((word) => {
-    const count1 = words1.filter(w => w === word).length;
-    const count2 = words2.filter(w => w === word).length;
-    matchCount += Math.min(count1, count2);
-  });
-
-  const maxWords = Math.max(words1.length, words2.length);
-  const similarity = (matchCount / maxWords) * 100;
-  return similarity;
-}
- */
 
 
  private calculateTextSimilarity(text1: string, text2: string): number {
@@ -181,4 +160,17 @@ operatorTextSimilarity(text1: string, text2: string): Promise<string | undefined
         });
     });
   }
+compareDates(date1: string, date2: string): Promise<any> {
+    return this.http.post('http://localhost:3000/compareDates', { date1, date2 }).toPromise();
 }
+
+convertTimeZone(date: string, timezone: string): Promise<any> {
+    return this.http.post('http://localhost:3000/convertTimeZone', { date, timezone }).toPromise();
+}
+
+convertDateFormat(date: string, format: string): Promise<any> {
+    return this.http.post('http://localhost:3000/convertDateFormat', { date, format }).toPromise();
+}
+}
+
+

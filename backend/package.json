@@ -1,0 +1,13 @@
+{
+  "name": "date-calculator-backend",
+  "version": "1.0.0",
+  "description": "Backend for Date Calculator",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "luxon": "^2.5.2"
+  }
+}

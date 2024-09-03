@@ -13,7 +13,6 @@ import { JSONRulesService } from '../jsonrules.service';
   styleUrl: './rules-engine.component.scss',
 })
 export class RulesEngineComponent implements OnInit {
-  // result: string;
   items: string[] = [
     'Date Calculator',
     'Text Similarity',
@@ -26,29 +25,19 @@ export class RulesEngineComponent implements OnInit {
   selectedItem: string | null = null;
   inputs: any[] = [];
   output: string = '';
+  timeZones: string[] = []; // Time zones array
 
-  constructor(private jsonRulesService: JSONRulesService) {
-  }
-
-  /*
+  constructor(private jsonRulesService: JSONRulesService) {}
 
   ngOnInit() {
-    this.jsonRulesService.getRules().subscribe((rules) => {
-      rules.forEach((rule: any) => this.engine.addRule(rule));
-    });
-
-    this.engine.addOperator(
-      'almostPalindrome',
-      (factValue: string, jsonValue: boolean) => {
-        return (
-          this.jsonRulesService.isAlmostPalindrome(factValue) === jsonValue
-        );
-      }
-    );
+    this.populateTimeZones();
   }
-  */ 
 
-  ngOnInit() {
+  populateTimeZones() {
+    this.timeZones = [
+      'Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers',
+      'America/New_York', 'America/Los_Angeles', // Add more as required...
+    ];
   }
 
   onSelect(event: Event): void {
@@ -62,7 +51,14 @@ export class RulesEngineComponent implements OnInit {
     // Define different input structures for each item here
     switch (item) {
       case 'Date Calculator':
-        return [{ label: "L: ", type: 'text', placeholder: 'Input 1' }];
+        return [
+          { label: 'Date 1: ', type: 'datetime-local', placeholder: 'Enter the first date', key: 'date1' },
+          { label: 'Date 2: ', type: 'datetime-local', placeholder: 'Enter the second date', key: 'date2' },
+          { label: 'Timezone Input: ', type: 'datetime-local', placeholder: 'Enter date for timezone conversion', key: 'timezoneInput' },
+          { label: 'Timezone: ', type: 'select', options: this.timeZones, key: 'timezone' },
+          { label: 'Date Format Input: ', type: 'text', placeholder: 'MM/DD/YYYY', key: 'dateFormatInput' },
+          { label: 'Date Format: ', type: 'select', options: ['MM/DD/YYYY', 'DD/MM/YYYY'], key: 'dateFormat' }
+        ];
       case 'Text Similarity':
         return [
           { label: "L: ", type: 'text', placeholder: 'Text 1' },
@@ -92,25 +88,102 @@ export class RulesEngineComponent implements OnInit {
   }
 
   async performAction(item: string, inputs: any[]): Promise<any> {
+    console.log('performAction triggered with item:', item, 'and inputs:', inputs);
+
+    const inputValues = inputs.reduce((obj, input) => {
+      obj[input.key] = input.value;
+      return obj;
+    }, {});
+
+    console.log('Processed input values:', inputValues);
+
+    let result: any;
+
     switch (item) {
       case 'Date Calculator':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
+        const date1 = inputValues.date1;
+        const date2 = inputValues.date2;
+        const timezoneInput = inputValues.timezoneInput;
+        const timezone = inputValues.timezone;
+        const dateFormatInput = inputValues.dateFormatInput;
+        const dateFormat = inputValues.dateFormat;
+
+        // Perform the desired operation based on the inputs
+        if (date1 && date2) {
+          result = await this.jsonRulesService.compareDates(date1, date2);
+        } else if (timezoneInput && timezone) {
+          result = await this.jsonRulesService.convertTimeZone(timezoneInput, timezone);
+        } else if (dateFormatInput && dateFormat) {
+          result = await this.jsonRulesService.convertDateFormat(dateFormatInput, dateFormat);
+        } else {
+          result = 'Invalid input for Date Calculator';
+        }
+        break;
+
       case 'Text Similarity':
         return await this.jsonRulesService.operatorTextSimilarity(
           inputs[0].value,
           inputs[1].value
         );
+
       case 'Geolocation Identification':
-        return `Executed action for ${item} with inputs: ${inputs[0].value}, ${inputs[1].value}`;
+        result = `Executed action for ${item} with inputs: ${inputValues[0].value}, ${inputValues[1].value}`;
+        break;
+
       case 'Almost Palindrome':
         return await this.jsonRulesService.operatorAlmostPalindrome(inputs[0].value);
+
       case 'Language Detection':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
+        result = `Executed action for ${item} with input: ${inputValues[0].value}`;
+        break;
+
       case 'Traffic Predictor':
-        return `Executed action for ${item} with input: ${inputs[0].value}`;
+        result = `Executed action for ${item} with input: ${inputValues[0].value}`;
+        break;
+
       default:
-        return 'No action defined';
+        result = 'No action defined';
+        break;
+    }
+
+    // Convert result to a string if it is an object
+//     if (typeof result === 'object') {
+//       return JSON.stringify(result, null, 2); // Pretty-print JSON
+//     } else {
+//       return result;
+//     }
+  }
+
+  async executeDateComparison() {
+    const date1 = this.inputs[0].value;
+    const date2 = this.inputs[1].value;
+    if (date1 && date2) {
+      const result = await this.jsonRulesService.compareDates(date1, date2);
+      this.output = JSON.stringify(result, null, 2);
+    } else {
+      this.output = 'Please provide both dates for comparison.';
     }
   }
 
+  async executeTimezoneConversion() {
+    const timezoneInput = this.inputs[2].value;
+    const timezone = this.inputs[3].value;
+    if (timezoneInput && timezone) {
+      const result = await this.jsonRulesService.convertTimeZone(timezoneInput, timezone);
+      this.output = JSON.stringify(result, null, 2);
+    } else {
+      this.output = 'Please provide the input date and timezone for conversion.';
+    }
+  }
+
+  async executeDateFormatConversion() {
+    const dateFormatInput = this.inputs[4].value;
+    const dateFormat = this.inputs[5].value;
+    if (dateFormatInput && dateFormat) {
+      const result = await this.jsonRulesService.convertDateFormat(dateFormatInput, dateFormat);
+      this.output = JSON.stringify(result, null, 2);
+    } else {
+      this.output = 'Please provide the date input and select the format for conversion.';
+    }
+  }
 }

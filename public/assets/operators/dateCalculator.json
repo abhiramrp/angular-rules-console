@@ -1,0 +1,22 @@
+[
+  {
+    "conditions": {
+      "all": [
+        {
+          "fact": "date1",
+          "operator": "greaterThanInclusive",
+          "value": {
+            "fact": "date2",
+            "path": "$"
+          }
+        }
+      ]
+    },
+    "event": {
+      "type": "date-comparison-valid",
+      "params": {
+        "message": "date1 is not earlier than date2"
+      }
+    }
+  }
+]

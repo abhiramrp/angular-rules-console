@@ -1,22 +1,102 @@
 <main>
-    <div>
-        <select (change)="onSelect($event)">
-            <option *ngFor="let item of items" [value]="item">{{ item }}</option>
-        </select>
+  <div>
+    <select (change)="onSelect($event)">
+      <option *ngFor="let item of items" [value]="item">{{ item }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="selectedItem">
+    <h2>{{ selectedItem }}</h2>
+
+    <!-- Date Comparison Section -->
+    <div *ngIf="selectedItem === 'Date Calculator' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="datetime-local" [(ngModel)]="inputs[0].value">
+
+      <label>{{ inputs[1].label }}</label>
+      <input type="datetime-local" [(ngModel)]="inputs[1].value">
+
+      <button (click)="executeDateComparison()">Compare Dates</button>
     </div>
 
-    <div *ngIf="selectedItem">
-        <h2>{{ selectedItem }}</h2>
-        <div *ngFor="let input of inputs">
-            <label>{{input.label}}</label>
-            <input [type]="input.type" [placeholder]="input.placeholder" [(ngModel)]="input.value">
-        </div>
-        <button (click)="executeFunction()">Execute</button>
-        <div *ngIf="output">
-            <h3>Output:</h3>
-            <p>{{ output }}</p>
-        </div>
+    <!-- Timezone Conversion Section -->
+    <div *ngIf="selectedItem === 'Date Calculator' && inputs.length > 2">
+      <label>{{ inputs[2].label }}</label>
+      <input type="datetime-local" [(ngModel)]="inputs[2].value">
+
+      <label>{{ inputs[3].label }}</label>
+      <select [(ngModel)]="inputs[3].value">
+        <option *ngFor="let option of inputs[3].options" [value]="option">{{ option }}</option>
+      </select>
+
+      <button (click)="executeTimezoneConversion()">Convert Timezone</button>
     </div>
 
+    <!-- Date Format Conversion Section -->
+    <div *ngIf="selectedItem === 'Date Calculator' && inputs.length > 4">
+      <label>{{ inputs[4].label }}</label>
+      <input type="text" placeholder="MM/DD/YYYY" [(ngModel)]="inputs[4].value">
 
+      <label>{{ inputs[5].label }}</label>
+      <select [(ngModel)]="inputs[5].value">
+        <option *ngFor="let option of inputs[5].options" [value]="option">{{ option }}</option>
+      </select>
+
+      <button (click)="executeDateFormatConversion()">Convert Date Format</button>
+    </div>
+
+    <!-- Text Similarity Section -->
+    <div *ngIf="selectedItem === 'Text Similarity' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="text" [(ngModel)]="inputs[0].value">
+
+      <label>{{ inputs[1].label }}</label>
+      <input type="text" [(ngModel)]="inputs[1].value">
+
+      <button (click)="executeFunction()">Check Similarity</button>
+    </div>
+
+    <!-- Almost Palindrome Section -->
+    <div *ngIf="selectedItem === 'Almost Palindrome' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="text" [(ngModel)]="inputs[0].value">
+
+      <button (click)="executeFunction()">Check Palindrome</button>
+    </div>
+
+    <!-- Geolocation Identification Section -->
+    <div *ngIf="selectedItem === 'Geolocation Identification' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="number" [(ngModel)]="inputs[0].value">
+
+      <label>{{ inputs[1].label }}</label>
+      <input type="number" [(ngModel)]="inputs[1].value">
+
+      <button (click)="executeFunction()">Identify Location</button>
+    </div>
+
+    <!-- Language Detection Section -->
+    <div *ngIf="selectedItem === 'Language Detection' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="text" [(ngModel)]="inputs[0].value">
+
+      <button (click)="executeFunction()">Detect Language</button>
+    </div>
+
+    <!-- Traffic Predictor Section -->
+    <div *ngIf="selectedItem === 'Traffic Predictor' && inputs.length > 0">
+      <label>{{ inputs[0].label }}</label>
+      <input type="text" [(ngModel)]="inputs[0].value">
+
+      <button (click)="executeFunction()">Predict Traffic</button>
+    </div>
+
+    <!-- Output Section -->
+    <div *ngIf="output">
+      <h3>Output:</h3>
+      <pre>{{ output }}</pre>
+    </div>
+  </div>
 </main>
+
+
