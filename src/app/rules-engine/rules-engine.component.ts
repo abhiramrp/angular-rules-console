@@ -3,7 +3,7 @@ import { Engine } from 'json-rules-engine';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { JSONRulesService } from '../jsonrules.service';
+import { JSONRulesService } from '../services/jsonrules.service';
 
 @Component({
   selector: 'app-rules-engine',
